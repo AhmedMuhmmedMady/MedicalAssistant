@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace MedicalAssistant.Domain.Entities.DoctorsModule
+namespace MedicalAssistant.Domain.Entities
 {
     public class BaseEntity
     {
