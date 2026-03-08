@@ -8,14 +8,14 @@ namespace MedicalAssistant.Persistance.Data.Configurations
     {
         public void Configure(EntityTypeBuilder<Patient> builder)
         {
-            // إعدادات الخصائص (Properties Configuration)
+            // Properties configuration
 
-            // الاسم الكامل مطلوب وبحد أقصى 100 حرف
+            // Full name is required with max length 100
             builder.Property(p => p.FullName)
                    .IsRequired()
                    .HasMaxLength(100);
 
-            // البريد الإلكتروني مطلوب وفريد
+            // Email is required and unique
             builder.Property(p => p.Email)
                    .IsRequired()
                    .HasMaxLength(150);
@@ -23,40 +23,40 @@ namespace MedicalAssistant.Persistance.Data.Configurations
             builder.HasIndex(p => p.Email)
                    .IsUnique();
 
-            // رقم الهاتف مطلوب
+            // Phone number is required
             builder.Property(p => p.PhoneNumber)
                    .IsRequired()
                    .HasMaxLength(20);
 
-            // تاريخ الميلاد مطلوب
+            // Date of birth is required
             builder.Property(p => p.DateOfBirth)
                    .IsRequired();
 
-            // الجنس مطلوب
+            // Gender is required
             builder.Property(p => p.Gender)
                    .IsRequired()
                    .HasMaxLength(10);
 
-            // العنوان اختياري
+            // Address is optional
             builder.Property(p => p.Address)
                    .HasMaxLength(300);
 
-            // رابط الصورة اختياري
+            // Profile image url is optional
             builder.Property(p => p.ImageUrl);
 
-            // فصيلة الدم اختيارية
+            // Blood type is optional
             builder.Property(p => p.BloodType)
                    .HasMaxLength(5);
 
-            // الملاحظات الطبية قد تكون طويلة
+            // Medical notes can be long
             builder.Property(p => p.MedicalNotes);
 
-            // تاريخ التسجيل مطلوب مع قيمة افتراضية
+            // CreatedAt is required with default value
             builder.Property(p => p.CreatedAt)
                    .IsRequired()
                    .HasDefaultValueSql("GETUTCDATE()");
 
-            // حالة التفعيل افتراضياً true
+            // IsActive is true by default
             builder.Property(p => p.IsActive)
                    .HasDefaultValue(true);
         }

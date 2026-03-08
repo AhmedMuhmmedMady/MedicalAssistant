@@ -11,4 +11,10 @@
     <ProjectReference Include="..\MedicalAssistant.Services Abstraction\MedicalAssistant.Services Abstraction.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="MappingProfiles\" />
+    <Folder Include="Services\" />
+    <Folder Include="Specifications\" />
+  </ItemGroup>
+
 </Project>

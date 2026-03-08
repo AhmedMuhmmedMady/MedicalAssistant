@@ -2,37 +2,37 @@
 {
     public class Patient : BaseEntity
     {
-        // الاسم الكامل للمريض
+        // Patient full name
         public string FullName { get; set; } = default!;
 
-        // البريد الإلكتروني للمريض
+        // Patient email
         public string Email { get; set; } = default!;
 
-        // رقم الهاتف
+        // Phone number
         public string PhoneNumber { get; set; } = default!;
 
-        // تاريخ الميلاد
+        // Date of birth
         public DateTime DateOfBirth { get; set; }
 
-        // الجنس (Male/Female)
+        // Gender (Male/Female)
         public string Gender { get; set; } = default!;
 
-        // العنوان
+        // Address
         public string? Address { get; set; }
 
-        // رابط الصورة الشخصية (اختياري)
+        // Profile image url (optional)
         public string? ImageUrl { get; set; }
 
-        // فصيلة الدم (اختياري)
+        // Blood type (optional)
         public string? BloodType { get; set; }
 
-        // ملاحظات طبية أو حالات مزمنة
+        // Medical notes / chronic conditions
         public string? MedicalNotes { get; set; }
 
-        // تاريخ التسجيل
+        // Registration date
         public DateTime CreatedAt { get; set; }
 
-        // حالة تفعيل الحساب
+        // Account activation status
         public bool IsActive { get; set; }
     }
 }
