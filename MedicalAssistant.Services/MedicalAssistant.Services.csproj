@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <Folder Include="MappingProfiles\" />
-    <Folder Include="Services\" />
     <Folder Include="Specifications\" />
   </ItemGroup>
 

@@ -5,7 +5,8 @@ using Microsoft.EntityFrameworkCore.Storage;
 namespace MedicalAssistant.Persistance.Repositories
 {
     /// <summary>
-    /// ????? ???? ????? - ??????? ?????? ????????? ????? ????? ???? ???????? ????? ?????
+    /// Unit of Work implementation.
+    /// Manages transactions and ensures all operations execute as a single unit.
     /// </summary>
     public class UnitOfWork : IUnitOfWork
     {
@@ -41,7 +42,7 @@ namespace MedicalAssistant.Persistance.Repositories
             try
             {
                 await _context.SaveChangesAsync();
-                
+
                 if (_transaction != null)
                 {
                     await _transaction.CommitAsync();
@@ -74,7 +75,7 @@ namespace MedicalAssistant.Persistance.Repositories
         }
 
         /// <summary>
-        /// ?????? ?? ???????
+        /// Disposes resources.
         /// </summary>
         protected virtual void Dispose(bool disposing)
         {

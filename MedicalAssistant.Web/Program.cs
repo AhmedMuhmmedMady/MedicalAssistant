@@ -1,4 +1,5 @@
 using MedicalAssistant.Persistance.Data.DbContexts;
+using MedicalAssistant.Web.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace MedicalAssistant
@@ -20,6 +21,9 @@ namespace MedicalAssistant
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
+
+            // Register Patient module dependencies (no API/controllers included)
+            builder.Services.AddPatientModule();
 
             var app = builder.Build();
 
