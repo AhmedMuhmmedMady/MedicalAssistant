@@ -1,35 +1,26 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace MedicalAssistant.Domain.Entities.DoctorsModule;
 
-namespace MedicalAssistant.Domain.Entities.DoctorsModule
+public class Doctor : BaseEntity
 {
-    public class Doctor : BaseEntity
-    {
-        // الاسم الكامل للطبيب
-        public string FullName { get; set; } = default!;
+    public string Name { get; set; } = string.Empty;
 
-        // رابط الصورة الشخصية للطبيب
-        public string ImageUrl { get; set; } = default!;
+    public string Location { get; set; } = string.Empty;
 
-        // نبذة عن الطبيب وخبراته
-        public string Bio { get; set; } = default!;
+    public int Experience { get; set; }
 
-        // عدد سنوات الخبرة
-        public int ExperienceYears { get; set; }
+    public decimal ConsultationFee { get; set; }
 
-        // متوسط التقييم (مثلاً 4.8)
-        public double Rating { get; set; }
+    public double Rating { get; set; }
 
-        // حالة التحقق من الطبيب بواسطة الأدمن
-        public bool IsVerified { get; set; }
+    public int ReviewCount { get; set; }
 
-        // الربط مع جدول التخصصات
-        #region Doctor - Speciality
-        public int SpecialtyId { get; set; }
-        public virtual Specialty Specialty { get; set; } = default!;
-        #endregion
-    }
+    public bool IsAvailable { get; set; }
+
+    public string Bio { get; set; } = string.Empty;
+
+    public string ImageUrl { get; set; } = "default-doctor.png";
+
+    public int SpecialtyId { get; set; }
+
+    public Specialty Specialty { get; set; } = null!;
 }

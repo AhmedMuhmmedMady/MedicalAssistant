@@ -1,100 +1,105 @@
-using MedicalAssistant.Domain.Contracts;
+﻿using MedicalAssistant.Domain.Contracts;
+using MedicalAssistant.Domain.Entities;
 using MedicalAssistant.Persistance.Data.DbContexts;
 using Microsoft.EntityFrameworkCore.Storage;
+using System.Collections;
 
-namespace MedicalAssistant.Persistance.Repositories
+namespace MedicalAssistant.Persistance.Repositories;
+
+public class UnitOfWork : IUnitOfWork
 {
-    /// <summary>
-    /// Unit of Work implementation.
-    /// Manages transactions and ensures all operations execute as a single unit.
-    /// </summary>
-    public class UnitOfWork : IUnitOfWork
+    private readonly MedicalAssistantDbContext _context;
+    private IDbContextTransaction? _transaction;
+    private bool _disposed;
+
+    // قاموس لتخزين الـ Repositories المنشأة لضمان عدم تكرارها (Flyweight Pattern)
+    private Hashtable? _repositories;
+
+    private IPatientRepository? _patients;
+    private IAppointmentRepository? _appointments;
+    private IDoctorRepository? _doctors;
+
+    public UnitOfWork(MedicalAssistantDbContext context)
     {
-        private readonly MedicalAssistantDbContext _context;
-        private IDbContextTransaction? _transaction;
-        private bool _disposed;
+        _context = context;
+    }
 
-        private IPatientRepository? _patients;
+    // --- تحقق الخصائص (Properties Implementation) ---
+    public IPatientRepository Patients => _patients ??= new PatientRepository(_context);
+    public IAppointmentRepository Appointments => _appointments ??= new AppointmentRepository(_context);
+    public IDoctorRepository Doctors => _doctors ??= new DoctorRepository(_context);
 
-        public UnitOfWork(MedicalAssistantDbContext context)
+    // --- تنفيذ الـ Generic Repository الوصول العام ---
+    public IGenericRepository<TEntity> Repository<TEntity>() where TEntity : BaseEntity
+    {
+        _repositories ??= new Hashtable();
+
+        var type = typeof(TEntity).Name;
+
+        if (!_repositories.ContainsKey(type))
         {
-            _context = context;
+            var repositoryType = typeof(GenericRepository<>);
+            var repositoryInstance = Activator.CreateInstance(repositoryType.MakeGenericType(typeof(TEntity)), _context);
+            _repositories.Add(type, repositoryInstance);
         }
 
-        /// <inheritdoc/>
-        public IPatientRepository Patients => _patients ??= new PatientRepository(_context);
+        return (IGenericRepository<TEntity>)_repositories[type]!;
+    }
 
-        /// <inheritdoc/>
-        public async Task<int> SaveChangesAsync()
+    public async Task<int> SaveChangesAsync()
+    {
+        return await _context.SaveChangesAsync();
+    }
+
+    // --- إدارة العمليات (Transaction Management) ---
+    public async Task BeginTransactionAsync()
+    {
+        _transaction = await _context.Database.BeginTransactionAsync();
+    }
+
+    public async Task CommitTransactionAsync()
+    {
+        try
         {
-            return await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            if (_transaction != null) await _transaction.CommitAsync();
         }
-
-        /// <inheritdoc/>
-        public async Task BeginTransactionAsync()
+        catch
         {
-            _transaction = await _context.Database.BeginTransactionAsync();
+            await RollbackTransactionAsync();
+            throw;
         }
-
-        /// <inheritdoc/>
-        public async Task CommitTransactionAsync()
-        {
-            try
-            {
-                await _context.SaveChangesAsync();
-
-                if (_transaction != null)
-                {
-                    await _transaction.CommitAsync();
-                }
-            }
-            catch
-            {
-                await RollbackTransactionAsync();
-                throw;
-            }
-            finally
-            {
-                if (_transaction != null)
-                {
-                    await _transaction.DisposeAsync();
-                    _transaction = null;
-                }
-            }
-        }
-
-        /// <inheritdoc/>
-        public async Task RollbackTransactionAsync()
+        finally
         {
             if (_transaction != null)
             {
-                await _transaction.RollbackAsync();
                 await _transaction.DisposeAsync();
                 _transaction = null;
             }
         }
+    }
 
-        /// <summary>
-        /// Disposes resources.
-        /// </summary>
-        protected virtual void Dispose(bool disposing)
+    public async Task RollbackTransactionAsync()
+    {
+        if (_transaction != null)
         {
-            if (!_disposed)
-            {
-                if (disposing)
-                {
-                    _transaction?.Dispose();
-                    _context.Dispose();
-                }
-                _disposed = true;
-            }
+            await _transaction.RollbackAsync();
+            await _transaction.DisposeAsync();
+            _transaction = null;
         }
+    }
 
-        /// <inheritdoc/>
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
+    // --- التخلص من الكائنات (Disposal) ---
+    public async ValueTask DisposeAsync()
+    {
+        await _context.DisposeAsync();
+        if (_transaction != null) await _transaction.DisposeAsync();
+    }
+
+    public void Dispose()
+    {
+        _context.Dispose();
+        _transaction?.Dispose();
+        GC.SuppressFinalize(this);
     }
 }

@@ -1,47 +1,70 @@
+using MedicalAssistant.Application.Services;
 using MedicalAssistant.Persistance.Data.DbContexts;
+using MedicalAssistant.Services.MappingProfiles;
+using MedicalAssistant.Services_Abstraction.Contracts;
 using MedicalAssistant.Web.Extensions;
 using Microsoft.EntityFrameworkCore;
 
-namespace MedicalAssistant
+namespace MedicalAssistant;
+
+public class Program
 {
-    public class Program
+    public static void Main(string[] args)
     {
-        public static void Main(string[] args)
+        var builder = WebApplication.CreateBuilder(args);
+
+        // Add services to the container
+        builder.Services.AddControllers();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddSwaggerGen();
+
+        // Add DbContext
+        builder.Services.AddDbContext<MedicalAssistantDbContext>(options =>
         {
-            var builder = WebApplication.CreateBuilder(args);
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+        });
 
-            // Add services to the container.
+        // Register Modules
+        builder.Services.AddPatientModule();
 
-            builder.Services.AddControllers();
-            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-            builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+        // AutoMapper
+        // Use this syntax for AutoMapper 13+ in .NET 8
+        builder.Services.AddAutoMapper(cfg =>
+        {
+            cfg.AddProfile<DoctorProfile>();
+        }, typeof(DoctorProfile).Assembly);
 
-            builder.Services.AddDbContext<MedicalAssistantDbContext>(options =>
+        // Register Doctor Service
+        builder.Services.AddScoped<IDoctorService, DoctorService>();
+
+        // Optional: CORS (allow frontend requests)
+        builder.Services.AddCors(options =>
+        {
+            options.AddPolicy("AllowAll", policy =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+                policy.AllowAnyOrigin()
+                      .AllowAnyMethod()
+                      .AllowAnyHeader();
             });
+        });
 
-            // Register Patient module dependencies (no API/controllers included)
-            builder.Services.AddPatientModule();
+        var app = builder.Build();
 
-            var app = builder.Build();
-
-            // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
-
-            app.UseHttpsRedirection();
-
-            app.UseAuthorization();
-
-
-            app.MapControllers();
-
-            app.Run();
+        // Configure the HTTP request pipeline
+        if (app.Environment.IsDevelopment())
+        {
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
+
+        app.UseHttpsRedirection();
+
+        app.UseCors("AllowAll"); // <-- enable CORS
+
+        app.UseAuthorization();
+
+        app.MapControllers();
+
+        app.Run();
     }
 }

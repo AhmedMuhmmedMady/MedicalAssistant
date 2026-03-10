@@ -1,7 +1,8 @@
 ﻿using MedicalAssistant.Domain.Entities.DoctorsModule;
 using MedicalAssistant.Domain.Entities.PatientModule;
-using MedicalAssistant.Persistance.Data.Configurations;
+using MedicalAssistant.Domain.Entities.AppointmentsModule;
 using Microsoft.EntityFrameworkCore;
+using MedicalAssistant.Infrastructure.Data.Configurations.DoctorsModule;
 
 namespace MedicalAssistant.Persistance.Data.DbContexts
 {
@@ -28,5 +29,6 @@ namespace MedicalAssistant.Persistance.Data.DbContexts
         // جدول التخصصات لملء قائمة الاختيارات والبحث
         public DbSet<Specialty> Specialties { get; set; }
         public DbSet<Patient> Patients { get; set; }
+        public DbSet<Appointment> Appointments { get; set; }
     }
 }
